@@ -1,0 +1,76 @@
+Sub 宏1()
+Dim swzl!, sjzs!, jssw!, a!, b!, smk!, bfmj!       '定义 水位增量 , 数据组数, 计算水位
+Dim gc(3) As Single, qdj(3) As String   '变量 a, b, 水面宽 , 部分面积以及高程数组, 起点距数组
+
+zdsw = Cells(2, 5)
+swzl = Cells(3, 5)
+sjzs = Cells(4, 5)
+Cells(2, 7) = zdsw
+
+jssw = 0
+If Cells(2, 2) >= Cells(sjzs + 1, 2) Then     '计算水位并输出在 G 列
+jssw = Cells(sjzs + 1, 2)
+Else: jssw = Cells(2, 2)
+End If
+
+a = (jssw - zdsw) / swzl
+For I = 1 To a Step 1
+  If Cells(2, 7) + I * swzl <= jssw Then
+      Cells(I + 2, 7) = Cells(2, 7) + I * swzl
+  End If
+Next I
+
+Cells(1, 7) = "水位"  '显示表头
+Cells(1, 8) = "水面宽"
+Cells(1, 9) = "过水断面面积"
+b = 1
+smk = 0 '计算水面宽及部分面积
+bfmj = 0
+For I = 0 To a Step 1
+      smk = 0
+      bfmj = 0
+
+For j = 3 To sjzs
+    If Cells(I + 2, 7) > Cells(j, 2) Then
+
+    If Cells(I + 2, 7) <= Cells(j - 1, 2) Then
+
+   gc(0) = Cells(j - 1, 2)
+   qdj(0) = Cells(j - 1, 1)
+   gc(1) = Cells(j, 2)
+   qdj(1) = Cells(j, 1)
+
+If gc(0) <> gc(1) Then
+smk = Abs(qdj(1) - qdj(0)) / Abs(gc(0) - gc(1)) * Abs(Cells(I + 2, 7) - gc(1)) + smk
+bfmj = Abs(qdj(1) - qdj(0)) / Abs(gc(0) - gc(1)) * Abs(Cells(I + 2, 7) - gc(1)) * (Cells(I + 2, 7) - gc(1)) / 2 + bfmj
+End If
+End If
+If Cells(I + 2, 7) >= Cells(j - 1, 2) Then
+     gc(0) = Cells(j - 1, 2)
+    qdj(0) = Cells(j - 1, 1)
+    gc(1) = Cells(j, 2)
+    qdj(1) = Cells(j, 1)
+
+smk = (qdj(1) - qdj(0)) + smk
+bfmj = (qdj(1) - qdj(0)) * (Cells(I + 2, 7) - gc(0) + Cells(I + 2, 7) - gc(1)) / 2 + bfmj
+End If
+If Cells(I + 2, 7) < Cells(j + 1, 2) Then
+
+     gc(1) = Cells(j, 2)
+     qdj(1) = Cells(j, 1)
+     gc(2) = Cells(j + 1, 2)
+     qdj(2) = Cells(j + 1, 1)
+
+If gc(2) <> gc(1) Then
+smk = Abs(qdj(2) - qdj(1)) / Abs(gc(2) - gc(1)) * Abs(Cells(I + 2, 7) - gc(1)) + smk
+bfmj = Abs(qdj(2) - qdj(1)) / Abs(gc(2) - gc(1)) * Abs(Cells(I + 2, 7) - gc(1)) * Abs(Cells(I + 2, 7) - gc(1)) / 2 + bfmj
+End If
+End If
+End If
+Next j
+        Cells(I + 2, 8) = smk  '水面宽结果输出在 H 列
+        Cells(I + 2, 9) = bfmj  '计算水位相应的过水断面面积结果输出在 I 列
+Next I
+
+
+End Sub
